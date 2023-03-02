@@ -1,13 +1,11 @@
 const promisePool = require('../configs/db_connection');
-
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const randToken = require('rand-token');
+const bodyParser = require('body-parser');
 
 const promisify = require('util').promisify;
 const sign = promisify(jwt.sign).bind(jwt);
-const verify = promisify(jwt.verify).bind(jwt);
-const { v4: uuidv4 } = require('uuid');
 const { constants } = require('../../const');
 const SALT_ROUNDS = 10;
 
@@ -109,7 +107,35 @@ login = async function (req, res) {
   });
 };
 
+uploadFile = (req, res) => {
+  const file = req.file;
+  console.log('kiet ~ file: auth.js:112 ~ file:', file);
+  if (!file) {
+    return res.status(500).json({ message: 'File not found' });
+  }
+  //   const [req, res] = upload.single('myFile');
+  res.status(200).json({
+    url: 'https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2022/9/29/1099051/209419948_8601681615.jpg',
+  });
+};
+
+uploadMultipleFile = (req, res) => {
+  const files = req.files;
+  if (!files) {
+    return res.status(500).json({ message: 'File not found' });
+  }
+
+  //   const [req, res] = upload.single('myFile');
+  res.status(200).json(
+    files.map((file) => {
+      return 'https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2022/9/29/1099051/209419948_8601681615.jpg';
+    })
+  );
+};
+
 module.exports = {
   register,
   login,
+  uploadFile,
+  uploadMultipleFile,
 };

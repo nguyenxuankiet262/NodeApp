@@ -7,7 +7,9 @@ getAll = async (req, res) => {
     delete row.password;
     return row;
   });
-  res.send(users);
+  res.status(200).json({
+    data: users,
+  });
 };
 
 search = async (req, res) => {
