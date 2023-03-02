@@ -1,4 +1,4 @@
-const connection = require('../configs/db_connection');
+const promisePool = require('../configs/db_connection');
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -35,9 +35,9 @@ register = async (req, res) => {
   if (!username || !password)
     return res.status(409).send('Username or password null!');
 
-  const [rows, fields] = await connection
-    .promise()
-    .query(`SELECT * FROM user WHERE username='${username}'`);
+  const [rows, fields] = await promisePool.query(
+    `SELECT * FROM user WHERE username='${username}'`
+  );
 
   var user = rows[0];
 
@@ -49,7 +49,7 @@ register = async (req, res) => {
     username: username,
     password: hashPassword,
   };
-  await connection.execute(
+  await promisePool.query(
     `INSERT INTO user(username, password) VALUES ('${newUser.username}', '${newUser.password}')`
   );
   return res.status(200).send(newUser);
@@ -61,9 +61,9 @@ login = async function (req, res) {
   if (!username || !password)
     return res.status(409).send('Username or password null!');
 
-  const [rows, fields] = await connection
-    .promise()
-    .query(`SELECT * FROM user WHERE username='${username}'`);
+  const [rows, fields] = await promisePool.query(
+    `SELECT * FROM user WHERE username='${username}'`
+  );
 
   var user = rows[0];
 
@@ -93,11 +93,9 @@ login = async function (req, res) {
     // Nếu user này chưa có refresh token thì lưu refresh token đó vào database
     // await userModel.updateRefreshToken(user.username, refreshToken);
 
-    await connection
-      .promise()
-      .query(
-        `UPDATE user SET refresh_token='${refreshToken}' WHERE id=${user.id}`
-      );
+    await promisePool.query(
+      `UPDATE user SET refresh_token='${refreshToken}' WHERE id=${user.id}`
+    );
   } else {
     // Nếu user này đã có refresh token thì lấy refresh token đó từ database
     refreshToken = user.refresh_token;
